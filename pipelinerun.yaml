@@ -7,13 +7,11 @@ spec:
     - name: repo-url
       value: https://github.com/DanielVerano/tekton-ejemplo
     - name: branch-name
-      value: master
+      value: main
     - name: IMAGE
       value: danvermor21/tekton-ejemplo
-    - name: CONTEXT
-      value: .
-    - name: DOCKERFILE
-      value: ./DOCKERFILE
+    # - name: CONTEXT
+    #   value: .
   pipelineRef:
     name: crear-imagen
   podTemplate:
@@ -39,9 +37,9 @@ spec:
     - name: basic-creds
       secret:
         secretName: github-secret
-    - name: docker-creds
-      secret:
-        secretName: docker-credentials
-        items:
-          - key: .dockerconfigjson
-            path: config.json
+    # - name: docker-creds
+    #   secret:
+    #     secretName: docker-credentials
+    #     items:
+    #       - key: .dockerconfigjson
+    #         path: config.json

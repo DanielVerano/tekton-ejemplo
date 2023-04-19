@@ -14,6 +14,7 @@ spec:
       image: alpine/git:latest
       script: |
         #!/usr/bin/env sh
+        git config --global --add safe.directory /workspace/source
         VERSION=$(git rev-parse --short HEAD)
         echo -n $IMAGE:$VERSION | tee $(results.version.path)
       args:
@@ -46,6 +47,8 @@ spec:
         chmod 400 "${PARAM_USER_HOME}/.git-credentials"
         chmod 400 "${PARAM_USER_HOME}/.gitconfig"
         #
+        NEW_VERSION=$IMAGE
+        echo $NEW_VERSION
         NEW_VERSION=$(echo "$IMAGE" | tr '/' '\/')
         echo $NEW_VERSION
         git clone https://github.com/DanielVerano/argocd-ejemplo
@@ -55,6 +58,9 @@ spec:
         ls
         sed -ri "s#danvermor21/tekton-ejemplo:.*#$NEW_VERSION#g" manifests/deploy.yaml
         cat manifests/deploy.yaml | egrep "danvermor21"
+        git add *
+        git commit --allow-empty -m "nueva version"
+        git push origin master
       args:
         - echo
       workingDir: $(workspaces.source.path)
