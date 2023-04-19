@@ -1,0 +1,40 @@
+apiVersion: triggers.tekton.dev/v1alpha1
+kind: TriggerTemplate
+metadata:
+  name: tekton-ejemplo-triggertemplate
+spec:
+  params:
+    - name: git-revision
+      default: master
+    - name: git-repo-url
+      default: https://github.kyndryl.net/daniel-verano-moreno/tekton-repo
+  resourcetemplates:
+    - apiVersion: tekton.dev/v1beta1
+      kind: PipelineRun
+      metadata:
+        generateName: tekton-ejemplo-run-
+      spec:
+        params:
+          - name: GIT_REPO
+            value: $(tt.params.git-repo-url)
+          - name: GIT_REF
+            value: $(tt.params.git-revision)
+        serviceAccountName: tekton-triggers-sa
+        pipelineRef:
+          name: crear-imagen
+        podTemplate:
+          securityContext:
+            fsGroup: 65532
+        workspaces:
+          - name: shared-data
+            persistentVolumeClaim:
+              claimName: app-source-pvc
+          - name: basic-creds
+            secret:
+              secretName: ghe-secret
+          - name: docker-creds
+            secret:
+              secretName: docker-credentials
+              items:
+                - key: .dockerconfigjson
+                  path: config.json

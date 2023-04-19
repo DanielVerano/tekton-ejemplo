@@ -1,0 +1,47 @@
+apiVersion: tekton.dev/v1beta1
+kind: PipelineRun
+metadata:
+  generateName: crear-imagen-run-
+spec:
+  params:
+    - name: repo-url
+      value: https://github.com/DanielVerano/tekton-ejemplo
+    - name: branch-name
+      value: master
+    - name: IMAGE
+      value: danvermor21/tekton-ejemplo
+    - name: CONTEXT
+      value: .
+    - name: DOCKERFILE
+      value: ./DOCKERFILE
+  pipelineRef:
+    name: crear-imagen
+  podTemplate:
+    securityContext:
+      fsGroup: 65532
+  workspaces:
+    - name: shared-data
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: shared-data2
+      volumeClaimTemplate:
+        spec:
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: 1Gi
+    - name: basic-creds
+      secret:
+        secretName: github-secret
+    - name: docker-creds
+      secret:
+        secretName: docker-credentials
+        items:
+          - key: .dockerconfigjson
+            path: config.json

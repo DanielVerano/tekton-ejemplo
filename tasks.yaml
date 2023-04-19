@@ -1,0 +1,70 @@
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: coger-version
+spec:
+  results:
+    - name: version
+      type: string
+  params:
+    - name: IMAGE
+      type: string
+  steps:
+    - name: crear-codigo
+      image: alpine/git:latest
+      script: |
+        #!/usr/bin/env sh
+        VERSION=$(git rev-parse --short HEAD)
+        echo -n $IMAGE:$VERSION | tee $(results.version.path)
+      args:
+        - echo
+      env:
+        - name: IMAGE
+          value: $(params.IMAGE)
+      workingDir: $(workspaces.source.path)
+  workspaces:
+    - name: source
+---
+apiVersion: tekton.dev/v1beta1
+kind: Task
+metadata:
+  name: cambiar-version
+spec:
+  params:
+    - name: IMAGE
+      type: string
+    - name: USER_HOME
+      type: string
+      default: "/root"
+  steps:
+    - name: cambiar-version
+      image: alpine/git:latest
+      script: |
+        #!/usr/bin/env sh
+        cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.git-credentials" "${PARAM_USER_HOME}/.git-credentials"
+        cp "${WORKSPACE_BASIC_AUTH_DIRECTORY_PATH}/.gitconfig" "${PARAM_USER_HOME}/.gitconfig"
+        chmod 400 "${PARAM_USER_HOME}/.git-credentials"
+        chmod 400 "${PARAM_USER_HOME}/.gitconfig"
+        #
+        NEW_VERSION=$(echo "$IMAGE" | tr '/' '\/')
+        echo $NEW_VERSION
+        git clone https://github.com/DanielVerano/argocd-ejemplo
+        cd argocd-ejemplo
+        git config user.email "alum.dveranom.2021@iesalixar.org"
+        git config user.name "DanielVerano"
+        ls
+        sed -ri "s#danvermor21/tekton-ejemplo:.*#$NEW_VERSION#g" manifests/deploy.yaml
+        cat manifests/deploy.yaml | egrep "danvermor21"
+      args:
+        - echo
+      workingDir: $(workspaces.source.path)
+      env:
+        - name: IMAGE
+          value: $(params.IMAGE)
+        - name: USER_HOME
+          value: $(params.USER_HOME)
+        - name: WORKSPACE_BASIC_AUTH_DIRECTORY_PATH
+          value: $(workspaces.basic-auth.path)
+  workspaces:
+    - name: source
+    - name: basic-auth

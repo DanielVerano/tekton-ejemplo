@@ -1,0 +1,83 @@
+apiVersion: tekton.dev/v1beta1
+kind: Pipeline
+metadata:
+  name: crear-imagen
+spec:
+  params:
+    - name: repo-url
+      type: string
+    - name: branch-name
+      type: string
+    - name: IMAGE
+      type: string
+    - name: CONTEXT
+      type: string
+    - name: DOCKERFILE
+      type: string
+  tasks:
+    - name: fetch-repo
+      params:
+        - name: url
+          value: "$(params.repo-url)"
+        - name: revision
+          value: "$(params.branch-name)"
+        - name: deleteExisting
+          value: "true"
+        - name: verbose
+          value: "true"
+      taskRef:
+        kind: Task
+        name: git-clone
+      workspaces:
+        - name: output
+          workspace: shared-data
+        - name: basic-auth
+          workspace: basic-creds
+    - name: coger-version
+      params:
+        - name: IMAGE
+          value: danvermor21/tekton-ejemplo
+      runAfter:
+        - "fetch-repo"
+      workspaces:
+        - name: source
+          workspace: shared-data
+      taskRef:
+        kind: Task
+        name: coger-version
+    - name: cambiar-version
+      runAfter:
+        - coger-version
+      taskRef:
+        kind: Task
+        name: cambiar-version
+      params:
+        - name: IMAGE
+          value: "$(tasks.coger-version.results.version)"
+      workspaces:
+        - name: source
+          workspace: shared-data2
+        - name: basic-auth
+          workspace: basic-creds
+    # - name: build
+    #   params:
+    #     - name: IMAGE
+    #       value: "$(params.IMAGE)"
+    #     - name: CONTEXT
+    #       value: "$(params.CONTEXT)"
+    #     - name: DOCKERFILE
+    #       value: "$(params.DOCKERFILE)"
+    #   runAfter:
+    #     - readme
+    #   workspaces:
+    #     - name: source
+    #       workspace: shared-data
+    #     - name: dockerconfig
+    #       workspace: docker-creds
+    #   taskRef:
+    #     name: kaniko
+  workspaces:
+    - name: shared-data
+    - name: shared-data2
+    - name: basic-creds
+    # - name: docker-creds
