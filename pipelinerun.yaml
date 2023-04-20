@@ -9,7 +9,7 @@ spec:
     - name: branch-name
       value: main
     - name: IMAGE
-      value: danvermor21/tekton-ejemplo
+      value: danvermor21/prueba-tekton
     # - name: CONTEXT
     #   value: .
   pipelineRef:
@@ -34,12 +34,12 @@ spec:
           resources:
             requests:
               storage: 1Gi
-    - name: basic-creds
+    - name: basic-auth
       secret:
         secretName: github-secret
-    # - name: docker-creds
-    #   secret:
-    #     secretName: docker-credentials
-    #     items:
-    #       - key: .dockerconfigjson
-    #         path: config.json
+    - name: docker-auth
+      secret:
+        secretName: docker-credentials
+        items:
+          - key: .dockerconfigjson
+            path: config.json

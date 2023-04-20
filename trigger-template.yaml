@@ -5,9 +5,9 @@ metadata:
 spec:
   params:
     - name: git-revision
-      default: master
+      default: main
     - name: git-repo-url
-      default: https://github.kyndryl.net/daniel-verano-moreno/tekton-repo
+      default: https://github.com/DanielVerano/tekton-ejemplo
   resourcetemplates:
     - apiVersion: tekton.dev/v1beta1
       kind: PipelineRun
@@ -27,14 +27,19 @@ spec:
             fsGroup: 65532
         workspaces:
           - name: shared-data
-            persistentVolumeClaim:
-              claimName: app-source-pvc
+            volumeClaimTemplate:
+              spec:
+                accessModes:
+                  - ReadWriteOnce
+                resources:
+                  requests:
+                    storage: 1Gi
           - name: basic-creds
             secret:
-              secretName: ghe-secret
-          - name: docker-creds
-            secret:
-              secretName: docker-credentials
-              items:
-                - key: .dockerconfigjson
-                  path: config.json
+              secretName: github-secret
+          # - name: docker-creds
+          #   secret:
+          #     secretName: docker-credentials
+          #     items:
+          #       - key: .dockerconfigjson
+          #         path: config.json

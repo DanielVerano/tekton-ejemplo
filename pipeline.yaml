@@ -32,7 +32,7 @@ spec:
         - name: output
           workspace: shared-data
         - name: basic-auth
-          workspace: basic-creds
+          workspace: basic-auth
     - name: coger-version
       params:
         - name: IMAGE
@@ -58,26 +58,26 @@ spec:
         - name: source
           workspace: shared-data2
         - name: basic-auth
-          workspace: basic-creds
-    # - name: build
-    #   params:
-    #     - name: IMAGE
-    #       value: "$(params.IMAGE)"
-    #     - name: CONTEXT
-    #       value: "$(params.CONTEXT)"
-    #     - name: DOCKERFILE
-    #       value: "$(params.DOCKERFILE)"
-    #   runAfter:
-        # - cambiar-version
-    #   workspaces:
-    #     - name: source
-    #       workspace: shared-data
-    #     - name: dockerconfig
-    #       workspace: docker-creds
-    #   taskRef:
-    #     name: kaniko
+          workspace: basic-auth
+    - name: build
+      params:
+        - name: IMAGE
+          value: "$(tasks.coger-version.results.version)"
+        # - name: CONTEXT
+        #   value: "$(params.CONTEXT)"
+        # - name: DOCKERFILE
+        #   value: "$(params.DOCKERFILE)"
+      runAfter:
+        - cambiar-version
+      workspaces:
+        - name: source
+          workspace: shared-data
+        - name: dockerconfig
+          workspace: docker-auth
+      taskRef:
+        name: kaniko
   workspaces:
     - name: shared-data
     - name: shared-data2
-    - name: basic-creds
-    # - name: docker-creds
+    - name: basic-auth
+    - name: docker-auth
