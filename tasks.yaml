@@ -49,14 +49,13 @@ spec:
         #
         NEW_VERSION=$IMAGE
         echo $NEW_VERSION
-        NEW_VERSION=$(echo "$IMAGE" | tr '/' '\/')
-        echo $NEW_VERSION
         git clone https://github.com/DanielVerano/argocd-ejemplo
         cd argocd-ejemplo
-        git config user.email "alum.dveranom.2021@iesalixar.org"
-        git config user.name "DanielVerano"
+        git remote set-url origin https://DanielVerano:<token>@github.com/DanielVerano/argocd-ejemplo.git
+        git config --global user.email "alum.dveranom.2021@iesalixar.org"
+        git config --global user.name "DanielVerano"
         ls
-        sed -ri "s#danvermor21/tekton-ejemplo:.*#$NEW_VERSION#g" manifests/deploy.yaml
+        sed -ri "s#danvermor21/prueba-tekton:.*#$NEW_VERSION#g" manifests/deploy.yaml
         cat manifests/deploy.yaml | egrep "danvermor21"
         git add *
         git commit --allow-empty -m "nueva version"
