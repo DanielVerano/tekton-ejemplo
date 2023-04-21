@@ -87,3 +87,8 @@ ngrok http 8080
 ### Añadir ngrok URL al repo de Github (Settings > Webhooks > Add webhook)
 
 ### Realizar un test del trigger haciendo un push de un cambio en la app (index.html)
+
+Si el pod no se inicializa, ejecutar el siguiente comando y editar la línea disable-affinity-assistant a true
+```sh
+kubectl edit configmap feature-flags -n tekton-pipelines
+```
