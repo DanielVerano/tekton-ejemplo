@@ -47,7 +47,7 @@ spec:
           - name: basic-auth
             secret:
               secretName: github-secret
-          - name: docker-creds
+          - name: docker-auth
             secret:
               secretName: docker-credentials
               items:
